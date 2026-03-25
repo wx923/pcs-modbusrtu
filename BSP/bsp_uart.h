@@ -38,7 +38,7 @@ typedef struct {
     SemaphoreHandle_t frame_sem; //帧信号量
     SemaphoreHandle_t tx_done_sem; //发送完成信号量
 
-    rcu_gpio_enum de_gpio_port; //RS485方向控制引脚端口
+    uint32_t de_gpio_port; //RS485方向控制引脚端口
     uint16_t de_gpio_pin; //RS485方向控制引脚
     uart_dir_t curr_dir; //当前传输方向
 } UartDevice;

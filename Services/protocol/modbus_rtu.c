@@ -1,4 +1,5 @@
 #include "modbus_rtu.h"
+#include <stddef.h>
 
 uint16_t mb_crc16(const uint8_t *data, uint16_t len)
 {

@@ -97,7 +97,7 @@ static void poll_one(const poll_item_t *item)
     if (mb_parse_rsp_read(s_rx_buf, (uint16_t)rsp_len, &n, vals) < 0) return;
 
     for (uint16_t i = 0; i < n; i++) {
-        dsp_mirror_write_reg((uint16_t)(item->addr + i), (int16_t)vals[i]);
+        dsp_mirror_write_reg((uint16_t)(item->addr + i), vals[i]);
     }
 }
 

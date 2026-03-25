@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>GD32F30X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\APP;.\BSP;.\Drives\Firmware;.\Drives\Firmware\CMSIS\GD\GD32F30x\Include;.\Drives\Firmware\CMSIS\GD\GD32F30x\Source\ARM;.\Drives\Firmware\GD32F30x_standard_peripheral\Include;.\Services;.\Drives\Firmware\CMSIS;.\Drives\FreeRTOS-Kernel-main;.\Drives\FreeRTOS-Kernel-main\include;.\Drives\FreeRTOS-Kernel-main\portable\GCC\ARM_CM4F</IncludePath>
+              <IncludePath>.\APP;.\BSP;.\Drives\Firmware;.\Drives\Firmware\CMSIS\GD\GD32F30x\Include;.\Drives\Firmware\CMSIS\GD\GD32F30x\Source\ARM;.\Drives\Firmware\GD32F30x_standard_peripheral\Include;.\Services;.\Drives\Firmware\CMSIS;.\Drives\FreeRTOS-Kernel-main;.\Drives\FreeRTOS-Kernel-main\include;.\Drives\FreeRTOS-Kernel-main\portable\GCC\ARM_CM4F;.\BSP\Inc;.\Services\data;.\Services\protocol</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -404,6 +404,16 @@
               <FileType>5</FileType>
               <FilePath>.\APP\FreeRTOSConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>DSP_MasterTask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\DSP_MasterTask.c</FilePath>
+            </File>
+            <File>
+              <FileName>MB_SlaveTask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\MB_SlaveTask.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -423,6 +433,18 @@
         </Group>
         <Group>
           <GroupName>Services</GroupName>
+          <Files>
+            <File>
+              <FileName>dsp_mirror.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Services\data\dsp_mirror.c</FilePath>
+            </File>
+            <File>
+              <FileName>modbus_rtu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Services\protocol\modbus_rtu.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Startup</GroupName>

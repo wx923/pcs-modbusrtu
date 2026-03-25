@@ -26,6 +26,12 @@ extern SemaphoreHandle_t g_uart2_mutex;
 #define TX_BUF_SIZE       256
 #define DSP_REPLY_TIMEOUT_MS 300
 
+typedef struct {
+    int result;   /* 0=ok, -1=timeout */
+    uint16_t ack_addr;
+    uint16_t ack_count;
+} dsp_reply_t;
+
 /* DSP 同步等待用的本地信号量（由 MB_SlaveTask 自行管理） */
 static SemaphoreHandle_t s_dsp_reply_sem;
 static StaticSemaphore_t s_dsp_reply_sem_buf;
@@ -41,12 +47,6 @@ typedef struct {
     uint16_t count;
     uint16_t vals[8];
 } dsp_wr_item_t;
-
-typedef struct {
-    int result;   /* 0=ok, -1=timeout */
-    uint16_t ack_addr;
-    uint16_t ack_count;
-} dsp_reply_t;
 
 void dsp_push_write(uint8_t fc, uint16_t addr, uint16_t count, const uint16_t *vals);
 
@@ -178,7 +178,7 @@ void MB_SlaveTask(void *arg)
                     uint16_t ack_addr = 0, ack_val = 0;
                     if (mb_parse_rsp_write_single(s_dsp_rx_buf, (uint16_t)ok, &ack_addr, &ack_val) == 0 &&
                         ack_addr == addr && ack_val == val) {
-                        dsp_mirror_write_reg(addr, (int16_t)val);
+                        dsp_mirror_write_reg(addr, val);
                         tx_len = mb_build_rsp_write_single(s_tx_buf, sizeof(s_tx_buf), id, addr, val);
                     } else {
                         tx_len = mb_build_rsp_exc(s_tx_buf, sizeof(s_tx_buf), id, MB_EXC_SLAVE_FAIL);
@@ -209,7 +209,7 @@ void MB_SlaveTask(void *arg)
                         if (mb_parse_rsp_write_multi(s_dsp_rx_buf, (uint16_t)ok, &ack_addr, &ack_count) == 0 &&
                             ack_addr == addr && ack_count == count) {
                             for (uint16_t i = 0; i < count; i++) {
-                                dsp_mirror_write_reg((uint16_t)(addr + i), (int16_t)vals[i]);
+                                dsp_mirror_write_reg((uint16_t)(addr + i), vals[i]);
                             }
                             tx_len = mb_build_rsp_write_multi(s_tx_buf, sizeof(s_tx_buf), id, addr, count);
                         } else {

@@ -1,4 +1,4 @@
-./objects/main.o: APP\main.c \
+./objects/mb_slavetask.o: APP\MB_SlaveTask.c \
   Drives\FreeRTOS-Kernel-main\include\FreeRTOS.h \
   D:\keil5\ARM\ARMCLANG\include\stddef.h \
   D:\keil5\ARM\ARMCLANG\include\stdint.h APP\FreeRTOSConfig.h \
@@ -11,13 +11,13 @@
   Drives\FreeRTOS-Kernel-main\include\list.h \
   Drives\FreeRTOS-Kernel-main\include\semphr.h \
   Drives\FreeRTOS-Kernel-main\include\queue.h \
-  D:\keil5\ARM\ARMCLANG\include\string.h APP\gd32f30x_libopt.h \
-  Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_rcu.h \
-  APP\gd32f30x.h Drives\Firmware\CMSIS\core_cm4.h \
-  Drives\Firmware\CMSIS\core_cmInstr.h \
+  D:\keil5\ARM\ARMCLANG\include\string.h BSP\bsp_uart.h APP\gd32f30x.h \
+  Drives\Firmware\CMSIS\core_cm4.h Drives\Firmware\CMSIS\core_cmInstr.h \
   Drives\Firmware\CMSIS\core_cmFunc.h \
   Drives\Firmware\CMSIS\core_cm4_simd.h \
   Drives\Firmware\CMSIS\GD\GD32F30x\Include\system_gd32f30x.h \
+  APP\gd32f30x_libopt.h \
+  Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_rcu.h \
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_adc.h \
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_can.h \
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_crc.h \
@@ -41,4 +41,4 @@
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_misc.h \
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_enet.h \
   Drives\Firmware\GD32F30x_standard_peripheral\Include\gd32f30x_exmc.h \
-  Services\data\dsp_mirror.h
+  Services\protocol\modbus_rtu.h Services\data\dsp_mirror.h

@@ -1,5 +1,8 @@
-//引入总头文件
+//头文件
 #include "dsp_mirror.h"
+
+//定义全局变量
+dsp_mirror_reg_t g_dsp_mirror_reg;
 
 //定义寄存器段映射表结构体
 typedef struct{
@@ -40,7 +43,6 @@ static dsp_mirror_reg_map_t g_dsp_mirror_reg_map[] = {
 #define DSP_MIRROR_REG_MAP_LEN sizeof(g_dsp_mirror_reg_map) / sizeof(dsp_mirror_reg_map_t)
 
 //创建寄存器数据表
-dsp_mirror_reg_t g_dsp_mirror_reg;
 
 //读取一个寄存器数据
 void dsp_mirror_read_reg(uint16_t reg_addr, uint16_t *reg_data){
@@ -56,7 +58,7 @@ void dsp_mirror_read_reg(uint16_t reg_addr, uint16_t *reg_data){
 }
 
 //写入一个寄存器数据
-void dsp_mirror_write_reg(uint16_t reg_addr, int16_t reg_data){
+void dsp_mirror_write_reg(uint16_t reg_addr, uint16_t reg_data){
     for(int i = 0; i < DSP_MIRROR_REG_MAP_LEN; i++){
         uint16_t seg_start = g_dsp_mirror_reg_map[i].reg_addr;
         uint16_t seg_end   = seg_start + g_dsp_mirror_reg_map[i].count;

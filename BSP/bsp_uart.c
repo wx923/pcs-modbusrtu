@@ -53,6 +53,8 @@ UartDevice uart2_dev = {
 
 void bsp_uart1_init(void)
 {
+    dma_parameter_struct dma_init_struct;
+
     uart1_dev.tx_done_sem = xSemaphoreCreateBinaryStatic(&s_uart1_tx_sem_buf);
     if (uart1_dev.tx_done_sem == NULL) {
         while (1) {}
@@ -69,34 +71,37 @@ void bsp_uart1_init(void)
     gpio_init(GPIOA, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_8);
     gpio_bit_reset(GPIOA, GPIO_PIN_8);
 
-    dma_single_data_parameter_struct dma_init_struct = {
-        .periph_addr         = (uint32_t)&USART_RDATA(USART1),
-        .periph_width        = DMA_PERIPHERAL_WIDTH_8BIT,
-        .memory_width        = DMA_MEMORY_WIDTH_8BIT,
-        .number              = uart1_dev.rx_buf_size,
-        .priority            = DMA_PRIORITY_HIGH,
-        .periph_increase     = DMA_PERIPH_INCREASE_DISABLE,
-        .memory_increase     = DMA_MEMORY_INCREASE_ENABLE,
-        .direction           = DMA_PERIPHERAL_TO_MEMORY,
-        .circular_mode       = DMA_CIRCULAR_MODE_ENABLE,
-    };
-    dma_single_data_mode_init(DMA0, uart1_dev.dma_rx_ch, &dma_init_struct);
+    /* DMA RX 初始化 */
+    dma_deinit(DMA0, uart1_dev.dma_rx_ch);
+    dma_struct_para_init(&dma_init_struct);
+    dma_init_struct.periph_addr  = (uint32_t)&USART_DATA(USART1);
+    dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
+    dma_init_struct.memory_addr  = (uint32_t)uart1_dev.rx_buf;
+    dma_init_struct.memory_width = DMA_MEMORY_WIDTH_8BIT;
+    dma_init_struct.number       = uart1_dev.rx_buf_size;
+    dma_init_struct.priority     = DMA_PRIORITY_HIGH;
+    dma_init_struct.periph_inc   = DMA_PERIPH_INCREASE_DISABLE;
+    dma_init_struct.memory_inc   = DMA_MEMORY_INCREASE_ENABLE;
+    dma_init_struct.direction    = DMA_PERIPHERAL_TO_MEMORY;
+    dma_init(DMA0, uart1_dev.dma_rx_ch, &dma_init_struct);
+    dma_circulation_enable(DMA0, uart1_dev.dma_rx_ch);
     dma_channel_enable(DMA0, uart1_dev.dma_rx_ch);
 
-    dma_single_data_parameter_struct dma_tx_init_struct = {
-        .periph_addr         = (uint32_t)&USART_TDATA(USART1),
-        .periph_width        = DMA_PERIPHERAL_WIDTH_8BIT,
-        .memory_width        = DMA_MEMORY_WIDTH_8BIT,
-        .number              = 0,
-        .priority            = DMA_PRIORITY_HIGH,
-        .periph_increase     = DMA_PERIPH_INCREASE_DISABLE,
-        .memory_increase     = DMA_MEMORY_INCREASE_ENABLE,
-        .direction           = DMA_MEMORY_TO_PERIPHERAL,
-        .circular_mode       = DMA_CIRCULAR_MODE_DISABLE,
-    };
-    dma_single_data_mode_init(DMA0, uart1_dev.dma_tx_ch, &dma_tx_init_struct);
-    dma_flag_clear(DMA0, uart1_dev.dma_tx_ch, DMA_INTF_FTFIF);
-    dma_interrupt_enable(DMA0, uart1_dev.dma_tx_ch, DMA_CHXCTL_FTFIE);
+    /* DMA TX 初始化 */
+    dma_deinit(DMA0, uart1_dev.dma_tx_ch);
+    dma_struct_para_init(&dma_init_struct);
+    dma_init_struct.periph_addr  = (uint32_t)&USART_DATA(USART1);
+    dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
+    dma_init_struct.memory_addr  = (uint32_t)uart1_dev.tx_buf;
+    dma_init_struct.memory_width = DMA_MEMORY_WIDTH_8BIT;
+    dma_init_struct.number       = 0;
+    dma_init_struct.priority     = DMA_PRIORITY_HIGH;
+    dma_init_struct.periph_inc   = DMA_PERIPH_INCREASE_DISABLE;
+    dma_init_struct.memory_inc   = DMA_MEMORY_INCREASE_ENABLE;
+    dma_init_struct.direction    = DMA_MEMORY_TO_PERIPHERAL;
+    dma_init(DMA0, uart1_dev.dma_tx_ch, &dma_init_struct);
+    dma_flag_clear(DMA0, uart1_dev.dma_tx_ch, DMA_FLAG_FTF);
+    dma_interrupt_enable(DMA0, uart1_dev.dma_tx_ch, DMA_INT_FTF);
 
     usart_baudrate_set(USART1, uart1_dev.baudrate);
     usart_word_length_set(USART1, USART_WL_8BIT);
@@ -105,8 +110,8 @@ void bsp_uart1_init(void)
     usart_receive_config(USART1, USART_RECEIVE_ENABLE);
     usart_transmit_config(USART1, USART_TRANSMIT_ENABLE);
     usart_interrupt_enable(USART1, USART_INT_IDLE);
-    usart_dma_receive_config(USART1, USART_DENR_ENABLE);
-    usart_dma_transmit_config(USART1, USART_DENT_ENABLE);
+    usart_dma_receive_config(USART1, USART_RECEIVE_DMA_ENABLE);
+    usart_dma_transmit_config(USART1, USART_TRANSMIT_DMA_ENABLE);
     usart_enable(USART1);
 
     nvic_irq_enable(USART1_IRQn, 5, 0);
@@ -116,6 +121,8 @@ void bsp_uart1_init(void)
 
 void bsp_uart2_init(void)
 {
+    dma_parameter_struct dma_init_struct;
+
     uart2_dev.tx_done_sem = xSemaphoreCreateBinaryStatic(&s_uart2_tx_sem_buf);
     if (uart2_dev.tx_done_sem == NULL) {
         while (1) {}
@@ -132,34 +139,37 @@ void bsp_uart2_init(void)
     gpio_init(GPIOA, GPIO_MODE_OUT_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
     gpio_bit_reset(GPIOA, GPIO_PIN_1);
 
-    dma_single_data_parameter_struct dma_init_struct = {
-        .periph_addr         = (uint32_t)&USART_RDATA(USART2),
-        .periph_width        = DMA_PERIPHERAL_WIDTH_8BIT,
-        .memory_width        = DMA_MEMORY_WIDTH_8BIT,
-        .number              = uart2_dev.rx_buf_size,
-        .priority            = DMA_PRIORITY_HIGH,
-        .periph_increase     = DMA_PERIPH_INCREASE_DISABLE,
-        .memory_increase     = DMA_MEMORY_INCREASE_ENABLE,
-        .direction           = DMA_PERIPHERAL_TO_MEMORY,
-        .circular_mode       = DMA_CIRCULAR_MODE_ENABLE,
-    };
-    dma_single_data_mode_init(DMA0, uart2_dev.dma_rx_ch, &dma_init_struct);
+    /* DMA RX 初始化 */
+    dma_deinit(DMA0, uart2_dev.dma_rx_ch);
+    dma_struct_para_init(&dma_init_struct);
+    dma_init_struct.periph_addr  = (uint32_t)&USART_DATA(USART2);
+    dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
+    dma_init_struct.memory_addr  = (uint32_t)uart2_dev.rx_buf;
+    dma_init_struct.memory_width = DMA_MEMORY_WIDTH_8BIT;
+    dma_init_struct.number       = uart2_dev.rx_buf_size;
+    dma_init_struct.priority     = DMA_PRIORITY_HIGH;
+    dma_init_struct.periph_inc   = DMA_PERIPH_INCREASE_DISABLE;
+    dma_init_struct.memory_inc   = DMA_MEMORY_INCREASE_ENABLE;
+    dma_init_struct.direction    = DMA_PERIPHERAL_TO_MEMORY;
+    dma_init(DMA0, uart2_dev.dma_rx_ch, &dma_init_struct);
+    dma_circulation_enable(DMA0, uart2_dev.dma_rx_ch);
     dma_channel_enable(DMA0, uart2_dev.dma_rx_ch);
 
-    dma_single_data_parameter_struct dma_tx_init_struct = {
-        .periph_addr         = (uint32_t)&USART_TDATA(USART2),
-        .periph_width        = DMA_PERIPHERAL_WIDTH_8BIT,
-        .memory_width        = DMA_MEMORY_WIDTH_8BIT,
-        .number              = 0,
-        .priority            = DMA_PRIORITY_HIGH,
-        .periph_increase     = DMA_PERIPH_INCREASE_DISABLE,
-        .memory_increase     = DMA_MEMORY_INCREASE_ENABLE,
-        .direction           = DMA_MEMORY_TO_PERIPHERAL,
-        .circular_mode       = DMA_CIRCULAR_MODE_DISABLE,
-    };
-    dma_single_data_mode_init(DMA0, uart2_dev.dma_tx_ch, &dma_tx_init_struct);
-    dma_flag_clear(DMA0, uart2_dev.dma_tx_ch, DMA_INTF_FTFIF);
-    dma_interrupt_enable(DMA0, uart2_dev.dma_tx_ch, DMA_CHXCTL_FTFIE);
+    /* DMA TX 初始化 */
+    dma_deinit(DMA0, uart2_dev.dma_tx_ch);
+    dma_struct_para_init(&dma_init_struct);
+    dma_init_struct.periph_addr  = (uint32_t)&USART_DATA(USART2);
+    dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
+    dma_init_struct.memory_addr  = (uint32_t)uart2_dev.tx_buf;
+    dma_init_struct.memory_width = DMA_MEMORY_WIDTH_8BIT;
+    dma_init_struct.number       = 0;
+    dma_init_struct.priority     = DMA_PRIORITY_HIGH;
+    dma_init_struct.periph_inc   = DMA_PERIPH_INCREASE_DISABLE;
+    dma_init_struct.memory_inc   = DMA_MEMORY_INCREASE_ENABLE;
+    dma_init_struct.direction    = DMA_MEMORY_TO_PERIPHERAL;
+    dma_init(DMA0, uart2_dev.dma_tx_ch, &dma_init_struct);
+    dma_flag_clear(DMA0, uart2_dev.dma_tx_ch, DMA_FLAG_FTF);
+    dma_interrupt_enable(DMA0, uart2_dev.dma_tx_ch, DMA_INT_FTF);
 
     usart_baudrate_set(USART2, uart2_dev.baudrate);
     usart_word_length_set(USART2, USART_WL_8BIT);
@@ -168,8 +178,8 @@ void bsp_uart2_init(void)
     usart_receive_config(USART2, USART_RECEIVE_ENABLE);
     usart_transmit_config(USART2, USART_TRANSMIT_ENABLE);
     usart_interrupt_enable(USART2, USART_INT_IDLE);
-    usart_dma_receive_config(USART2, USART_DENR_ENABLE);
-    usart_dma_transmit_config(USART2, USART_DENT_ENABLE);
+    usart_dma_receive_config(USART2, USART_RECEIVE_DMA_ENABLE);
+    usart_dma_transmit_config(USART2, USART_TRANSMIT_DMA_ENABLE);
     usart_enable(USART2);
 
     nvic_irq_enable(USART2_IRQn, 5, 0);
@@ -199,7 +209,9 @@ int bsp_uart_send(UartDevice *dev, const uint8_t *data, uint16_t len)
 void USART1_IRQHandler(void)
 {
     if (usart_interrupt_flag_get(USART1, USART_INT_FLAG_IDLE) != RESET) {
-        usart_interrupt_flag_clear(USART1, USART_INT_CLR_IDLEF);
+        /* 清除 IDLE 标志：先读 STAT0，再读 RDATA */
+        (void)USART_STAT0(USART1);
+        (void)USART_DATA(USART1);
 
         uart1_dev.rx_len = uart1_dev.rx_buf_size - dma_transfer_number_get(DMA0, uart1_dev.dma_rx_ch);
         dma_channel_disable(DMA0, uart1_dev.dma_rx_ch);
@@ -213,7 +225,9 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
     if (usart_interrupt_flag_get(USART2, USART_INT_FLAG_IDLE) != RESET) {
-        usart_interrupt_flag_clear(USART2, USART_INT_CLR_IDLEF);
+        /* 清除 IDLE 标志：先读 STAT0，再读 RDATA */
+        (void)USART_STAT0(USART2);
+        (void)USART_DATA(USART2);
 
         uart2_dev.rx_len = uart2_dev.rx_buf_size - dma_transfer_number_get(DMA0, uart2_dev.dma_rx_ch);
         dma_channel_disable(DMA0, uart2_dev.dma_rx_ch);

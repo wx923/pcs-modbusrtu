@@ -6,19 +6,20 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include <string.h>
 #include "gd32f30x_libopt.h"
 #include "system_gd32f30x.h"
+#include "dsp_mirror.h"
 
 extern void bsp_init(void);
 
 extern void MB_SlaveTask(void *arg);
 extern void DSP_MasterTask(void *arg);
 
-extern void FaultLed_BlinkLoop(void);
-extern uint32_t _is_bootloader_requested(void);
-extern void _jump_to_bootloader(void);
-
-extern dsp_mirror_reg_t g_dsp_mirror_reg;
+static void FaultLed_BlinkLoop(void)
+{
+    while (1);
+}
 
 /* =====================================================================
  * RTOS 内核对象（静态分配）
@@ -53,11 +54,6 @@ int main(void)
     __disable_irq();
 
     bsp_init();
-
-    if (_is_bootloader_requested()) {
-        fmc_flag_clear(FMC_FLAG_END | FMC_FLAG_WERR | FMC_FLAG_PGERR);
-        _jump_to_bootloader();
-    }
 
     memset(&g_dsp_mirror_reg, 0, sizeof(g_dsp_mirror_reg));
 
